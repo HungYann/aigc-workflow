@@ -46,10 +46,19 @@ python3 main.py
 - `--max-retry`: 重试次数
 - `--sse`: 输出进度流
 
-示例：
+## 常用演示命令
 
 ```bash
-python3 main.py --matrix-users 5,10 --quota-shortage-ratio 0.3 --fail-mode mixed --fail-ratio 0.3 --script-sec 0.2 --video-sec 0.4 --sse
+cd ~/Desktop/content/aigc-workflow
+
+# 单场景（3用户，无失败，快速演示）
+python3 main.py --users 3 --script-sec 0.2 --video-sec 0.4
+
+# 多场景矩阵（5和10用户，混合失败 + 配额不足）
+python3 main.py --matrix-users 5,10 --fail-mode mixed --fail-ratio 0.4 --quota-shortage-ratio 0.3 --script-sec 0.2 --video-sec 0.4
+
+# 打开 SSE 进度流日志（会输出每个 task 的进度事件）
+python3 main.py --users 5 --sse --script-sec 0.2 --video-sec 0.4
 ```
 
 ## 测试
