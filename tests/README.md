@@ -1,21 +1,15 @@
-# Tests for AIGC Workflow
+# 测试说明
 
-Run all tests:
+运行全部测试：
 
 ```bash
 cd /Users/liuhongyang/Desktop/content/aigc-workflow
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Covered scenarios:
+覆盖场景：
 
-1. Multi-user concurrent submit + quota reject.
-2. Success path with final result URL.
-3. Failure path + quota refund compensation.
-4. Retry logic on script step.
-5. SSE-like progress stream final event.
-6. Dedup cache hit reduces repeated video generation.
-7. Loop detection guard in ReAct flow.
-8. Tool schema contract.
-9. Default latency contract (script 5s, video 30s).
-10. Repository and account service unit tests.
+- 配额不足直接拒绝
+- 成功主流程（脚本生成 + 视频生成）
+- 失败后配额补偿返还
+- 进度流（SSE 风格）至少能收到最终 `final=true` 事件

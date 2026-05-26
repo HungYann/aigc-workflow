@@ -5,14 +5,9 @@ import asyncio
 import logging
 import random
 import time
-from typing import Iterable
 
-from agents.copy_agent import CopyAgent
-from agents.image_agent import ImageAgent
-from agents.inventory_agent import InventoryAgent
-from agents.product_agent import ProductAgent
 from agents.script_agent import ScriptAgent
-from agents.video_agent import VIDEO_GENERATE_TOOL_SCHEMA, VideoAgent
+from agents.video_agent import VideoAgent
 from repository.task_repository import TaskRepository
 from services.account_service import AccountService
 from services.workflow_engine import WorkflowEngine
@@ -34,7 +29,6 @@ def build_requests_and_quota(
     fail_tokens = {
         "script": " [script_fail]",
         "video": " [video_fail]",
-        "inventory": "缺货商品演示",
     }
 
     for i in range(1, user_count + 1):
@@ -45,8 +39,8 @@ def build_requests_and_quota(
         if rng.random() < fail_ratio and fail_mode != "none":
             mode = fail_mode
             if fail_mode == "mixed":
-                mode = rng.choice(["script", "video", "inventory"])
-            prompt = fail_tokens[mode] if mode == "inventory" else prompt + fail_tokens[mode]
+                mode = rng.choice(["script", "video"])
+            prompt = prompt + fail_tokens[mode]
 
         requests.append((user_id, prompt))
 
@@ -93,19 +87,13 @@ async def run_one_case(args: argparse.Namespace, user_count: int, case_idx: int)
     engine = WorkflowEngine(
         account_service=AccountService(quota),
         task_repository=TaskRepository(),
-        product_agent=ProductAgent(),
-        inventory_agent=InventoryAgent(),
         script_agent=ScriptAgent(latency_sec=args.script_sec),
-        image_agent=ImageAgent(),
         video_agent=VideoAgent(latency_sec=args.video_sec),
-        copy_agent=CopyAgent(),
-        max_retry=args.max_retry,
-        max_steps=8,
         worker_count=args.workers,
+        max_retry=args.max_retry,
         script_timeout_sec=max(2, int(args.script_sec + args.timeout_buffer)),
         video_timeout_sec=max(5, int(args.video_sec + args.timeout_buffer)),
         refund_on_failure=True,
-        dedup_ttl_days=7,
     )
 
     sse_tasks: list[asyncio.Task] = []
@@ -153,7 +141,7 @@ async def run_one_case(args: argparse.Namespace, user_count: int, case_idx: int)
                 t.task_id,
                 t.status.value,
                 duration,
-                t.step_retry_count,
+                t.retry_count,
                 t.error_message,
             )
 
@@ -172,8 +160,6 @@ async def run(args: argparse.Namespace) -> None:
         force=True,
     )
 
-    logging.info("[schema] video_generate=%s", VIDEO_GENERATE_TOOL_SCHEMA)
-
     if args.matrix_users:
         users_list = parse_users(args.matrix_users)
     else:
@@ -189,7 +175,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--matrix-users", type=str, default="", help="Run multiple cases, e.g. 5,20,50")
     parser.add_argument(
         "--fail-mode",
-        choices=["none", "script", "video", "inventory", "mixed"],
+        choices=["none", "script", "video", "mixed"],
         default="none",
         help="Failure injection mode",
     )
