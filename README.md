@@ -30,7 +30,7 @@ aigc-workflow/
 ## 运行
 
 ```bash
-cd /Users/liuhongyang/Desktop/content/aigc-workflow
+cd ~/Desktop/content/aigc-workflow
 python3 main.py
 ```
 
@@ -53,6 +53,14 @@ python3 main.py --matrix-users 5,10 --quota-shortage-ratio 0.3 --fail-mode mixed
 ```
 
 ## 测试
+
+先进入项目目录：
+
+```bash
+cd ~/Desktop/content/aigc-workflow
+```
+
+运行全部测试：
 
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py' -v
