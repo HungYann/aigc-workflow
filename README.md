@@ -27,12 +27,64 @@ aigc-workflow/
 └── tests/test_mvp.py
 ```
 
+![](codeflow.png)
+
 ## 运行
 
 ```bash
 cd ~/Desktop/content/aigc-workflow
 python3 main.py
 ```
+
+
+## 当前已实现的 CLI（现状）
+
+当前 `main.py --users/--matrix-users/...` 的跑批模式属于 `scenario` 类需求，后续可迁移到子命令 `scenario` 下。
+
+## 场景参数（现状实现）
+
+- `--users`: 用户数
+- `--matrix-users`: 多组用户数（如 `5,10,50`）
+- `--quota-shortage-ratio`: 配额不足比例
+- `--fail-mode`: `none|script|video|mixed`
+- `--fail-ratio`: 失败注入比例
+- `--script-sec` / `--video-sec`: 步骤耗时
+- `--workers`: worker 数量
+- `--max-retry`: 重试次数
+- `--sse`: 输出进度流
+
+## 常用演示命令
+
+
+![](aigcdesign.png)
+
+```bash
+cd ~/Desktop/content/aigc-workflow
+
+# 单场景（3用户，无失败，快速演示）
+python3 main.py --users 3 --script-sec 0.2 --video-sec 0.4
+
+# 多场景矩阵（5和10用户，混合失败 + 配额不足）
+python3 main.py --matrix-users 5,10 --fail-mode mixed --fail-ratio 0.4 --quota-shortage-ratio 0.3 --script-sec 0.2 --video-sec 0.4
+
+# 打开 SSE 进度流日志（会输出每个 task 的进度事件）
+python3 main.py --users 5 --sse --script-sec 0.2 --video-sec 0.4
+```
+
+## 测试
+
+先进入项目目录：
+
+```bash
+cd ~/Desktop/content/aigc-workflow
+```
+
+运行全部测试：
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+```
+
 
 ## Agent CLI 调用方式（规划）
 
@@ -198,50 +250,3 @@ data: {"step":"DONE","progress":100,"status":"SUCCESS","message":"...","time":".
 - `get_task(taskId) -> Task`
 - `stream_task_events(taskId) -> event stream`
 
-## 当前已实现的 CLI（现状）
-
-当前 `main.py --users/--matrix-users/...` 的跑批模式属于 `scenario` 类需求，后续可迁移到子命令 `scenario` 下。
-
-## 场景参数（现状实现）
-
-- `--users`: 用户数
-- `--matrix-users`: 多组用户数（如 `5,10,50`）
-- `--quota-shortage-ratio`: 配额不足比例
-- `--fail-mode`: `none|script|video|mixed`
-- `--fail-ratio`: 失败注入比例
-- `--script-sec` / `--video-sec`: 步骤耗时
-- `--workers`: worker 数量
-- `--max-retry`: 重试次数
-- `--sse`: 输出进度流
-
-## 常用演示命令
-
-
-![](aigcdesign.png)
-
-```bash
-cd ~/Desktop/content/aigc-workflow
-
-# 单场景（3用户，无失败，快速演示）
-python3 main.py --users 3 --script-sec 0.2 --video-sec 0.4
-
-# 多场景矩阵（5和10用户，混合失败 + 配额不足）
-python3 main.py --matrix-users 5,10 --fail-mode mixed --fail-ratio 0.4 --quota-shortage-ratio 0.3 --script-sec 0.2 --video-sec 0.4
-
-# 打开 SSE 进度流日志（会输出每个 task 的进度事件）
-python3 main.py --users 5 --sse --script-sec 0.2 --video-sec 0.4
-```
-
-## 测试
-
-先进入项目目录：
-
-```bash
-cd ~/Desktop/content/aigc-workflow
-```
-
-运行全部测试：
-
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-```
