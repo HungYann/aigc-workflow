@@ -216,6 +216,9 @@ data: {"step":"DONE","progress":100,"status":"SUCCESS","message":"...","time":".
 
 ## 常用演示命令
 
+
+![](aigcdesign.png)
+
 ```bash
 cd ~/Desktop/content/aigc-workflow
 
